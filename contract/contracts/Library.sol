@@ -9,6 +9,7 @@ contract Library is Ownable{
 	struct soldBook {
 		uint quantity;
 		uint blockNumber;
+		address clientAddress;
 	}
 
 	mapping(uint => uint) public books;
@@ -36,6 +37,7 @@ contract Library is Ownable{
 
 		clientPurchases[msg.sender][_id].quantity++;
 		clientPurchases[msg.sender][_id].blockNumber = block.number;
+		clientPurchases[msg.sender][_id].clientAddress = msg.sender;
 		books[_id]--;
 		clients[clientsNumber] = msg.sender;
 		clientsNumber++;
@@ -53,12 +55,11 @@ contract Library is Ownable{
 		return clientPurchases[_client][_id].quantity;
 	}
 
-	function listClients() public view returns(address[] memory) {
-		address[] memory clientsInStore = new address[](clientsNumber);
-		for(uint i; i < clientsNumber; i++) {
-			clientsInStore[i] = clients[i];
-		}
+	function numberOfClients() public view returns(uint) {
+		return clientsNumber;
+	}
 
-		return clientsInStore;
+	function clientAddress(uint _id) public view returns(address) {
+		return clients[_id];
 	}
 }

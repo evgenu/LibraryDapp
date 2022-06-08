@@ -62,7 +62,9 @@ describe("Library", () => {
 			await library.addBooks(1, 3);
 			await library.connect(buyer1).buyBook(1);
 			await library.connect(buyer2).buyBook(1);
-			expect(await library.listClients()).to.eql([buyer1.address, buyer2.address]);
+			expect(await library.numberOfClients()).to.equal(2);
+			expect(await library.clientAddress(0)).to.equal(buyer1.address);
+			// expect(await library.listClients()).to.eql([buyer1.address, buyer2.address]);
 		});
 	});
 });
