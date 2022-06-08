@@ -131,6 +131,8 @@ class App extends React.Component<any, any> {
   public provider: any;
   public bookReq: IBookRequest;
 
+  public clients: string[] = [];
+
   constructor(props: any) {
     super(props);
     this.state = {
@@ -228,6 +230,14 @@ class App extends React.Component<any, any> {
     const transactionReceipt = await transaction.wait();
     if (transactionReceipt.status !== 1) {
       alert("Cannot return book")
+    }
+  }
+
+  public listClients = async () => {
+    const { contract } = this.state;
+
+    for (let i = 0; i < contract.numberOfClients(); ++i) {
+      this.clients.push(contract.clientAddress(i));
     }
   }
 
@@ -337,6 +347,8 @@ class App extends React.Component<any, any> {
             <input type="text" name="bookIdReturn" onChange={event => {this.bookReq.id = Number(event.target.value)}}/>
             <input type="submit" value="Submit"/>
           </form>}
+          <Button onClick={this.listClients}>Update client list</Button>
+          {this.state.connected && (this.clients).map(client => <p key={client}>{client}</p>)}
 
           <SContent>
             {fetching ? (

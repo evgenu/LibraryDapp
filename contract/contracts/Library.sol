@@ -4,7 +4,7 @@ pragma abicoder v2;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Library is Ownable{
+contract Library is Ownable {
 
 	struct soldBook {
 		uint quantity;
