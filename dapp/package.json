@@ -9,6 +9,8 @@
     "@ethersproject/contracts": "^5.0.8",
     "@ethersproject/hash": "^5.0.9",
     "@ethersproject/providers": "^5.0.17",
+    "@ethersproject/units": "^5.6.1",
+    "@ethersproject/wallet": "^5.6.2",
     "@toruslabs/torus-embed": "^1.8.1",
     "@walletconnect/web3-provider": "^1.2.2",
     "authereum": "0.0.4-beta.201",

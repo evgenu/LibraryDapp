@@ -11,6 +11,8 @@ import Loader from './components/Loader';
 import ConnectButton from './components/ConnectButton';
 
 import { Web3Provider } from '@ethersproject/providers';
+import { Wallet } from '@ethersproject/wallet';
+import { parseEther } from '@ethersproject/units'
 import { getChainData } from './helpers/utilities';
 import { getContract } from './helpers/ethers';
 
@@ -130,8 +132,10 @@ class App extends React.Component<any, any> {
   public state: IAppState;
   public provider: any;
   public bookReq: IBookRequest;
-
   public clients: string[] = [];
+  public wallet: Wallet;
+  public walletProvider: any;
+  public signer: any;
 
   constructor(props: any) {
     super(props);
@@ -163,6 +167,11 @@ class App extends React.Component<any, any> {
     const network = await library.getNetwork();
 
     const address = this.provider.selectedAddress ? this.provider.selectedAddress : this.provider.accounts[0];
+
+    this.signer = (new Web3Provider(this.provider)).getSigner();
+
+    console.log(this.signer);
+
 
     await this.setState({
       library,
@@ -213,7 +222,18 @@ class App extends React.Component<any, any> {
     event.preventDefault();
     const { contract } = this.state;
 
+    const tx = {
+      to: contract.address,
+      value: parseEther("0.1")
+    };
+
+    const payFee = await this.signer.sendTransaction(tx);
+    await payFee.wait();
+    console.log(payFee);
+
+
     const transaction = await contract.buyBook(this.bookReq.id);
+
 
     const transactionReceipt = await transaction.wait();
     if (transactionReceipt.status !== 1) {
