@@ -13,6 +13,7 @@ import ConnectButton from './components/ConnectButton';
 import { Web3Provider } from '@ethersproject/providers';
 import { Wallet } from '@ethersproject/wallet';
 import { parseEther } from '@ethersproject/units'
+import { splitSignature } from '@ethersproject/bytes';
 import { getChainData } from './helpers/utilities';
 import { getContract } from './helpers/ethers';
 
@@ -157,6 +158,64 @@ class App extends React.Component<any, any> {
     if (this.web3Modal.cachedProvider) {
       this.onConnect();
     }
+  }
+
+  public onAttemptToApprove = async () => {
+    const { contract, address, library } = this.state;
+    
+    const nonce = (await  (contract.LibraryToken()).nonces(address)); 
+    const deadline = + new Date() + 60 * 60; 
+    const wrapValue = parseEther('0.1'); 
+    
+    const EIP712Domain = [
+        { name: 'name', type: 'string' },
+        { name: 'version', type: 'string' },
+        { name: 'verifyingContract', type: 'address' }
+    ];
+
+    const domain = {
+        name: await (contract.LibraryToken()).name(),
+        version: '1',
+        verifyingContract: (contract.LibraryToken()).address
+    };
+
+    const Permit = [
+        { name: 'owner', type: 'address' },
+        { name: 'spender', type: 'address' },
+        { name: 'value', type: 'uint256' },
+        { name: 'nonce', type: 'uint256' },
+        { name: 'deadline', type: 'uint256' }
+    ];
+
+    const message = {
+        owner: address,
+        spender: LIBRARY_CONTRACT_ADDRESS,
+        value: wrapValue.toString(),
+        nonce: nonce.toHexString(),
+        deadline
+    };
+
+    const data = JSON.stringify({
+        types: {
+            EIP712Domain,
+            Permit
+        },
+        domain,
+        primaryType: 'Permit',
+        message
+    })
+
+    const signatureLike = await library.send('eth_signTypedData_v4', [address, data]);
+    const signature = await splitSignature(signatureLike)
+
+    const preparedSignature = {
+        v: signature.v,
+        r: signature.r,
+        s: signature.s,
+        deadline
+    }
+
+    return preparedSignature
   }
 
   public onConnect = async () => {

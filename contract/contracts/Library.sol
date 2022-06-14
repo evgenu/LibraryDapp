@@ -42,11 +42,12 @@ contract Library is Ownable {
 		return books[_id];
 	}
 
-	function buyBook(uint _id) public payable onlyClient {
+	function buyBook(uint _id, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public payable onlyClient {
 		require(books[_id] > 0, "This book is out of stock");
 		require(clientPurchases[msg.sender][_id].quantity == 0, "You can't have more than one book of the same type");
 		require(paidFee[msg.sender] == true, "You must pay the fee of 0.1 LIB");
-
+		
+		LibToken(LibraryToken).permit(msg.sender, address(this), value, deadline, v, r, s);
 		clientPurchases[msg.sender][_id].quantity++;
 		clientPurchases[msg.sender][_id].blockNumber = block.number;
 		clientPurchases[msg.sender][_id].clientAddress = msg.sender;
@@ -59,7 +60,6 @@ contract Library is Ownable {
 	function returnBook(uint _id) public payable onlyClient {
 		require(clientPurchases[msg.sender][_id].quantity > 0, "No items to return");
 		require(block.number - clientPurchases[msg.sender][_id].blockNumber <= 100, "You missed the returning period");
-
 		delete clientPurchases[msg.sender][_id];
 		books[_id]++;
 	}
