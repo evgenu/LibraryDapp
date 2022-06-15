@@ -19,6 +19,7 @@ import { getContract } from './helpers/ethers';
 
 import { LIBRARY_CONTRACT_ADDRESS } from './constants';
 import LIBRARY_CONTRACT from './constants/abis/Library.json';
+import LIBTOKEN_CONTRACT from './constants/abis/LibToken.json';
 
 
 const theme = {
@@ -163,7 +164,10 @@ class App extends React.Component<any, any> {
   public onAttemptToApprove = async () => {
     const { contract, address, library } = this.state;
     
-    const nonce = await contract.getNonces(address); 
+    const libTokenAddress = await contract.LibraryToken();
+    const libTokenContract = await getContract(libTokenAddress, LIBTOKEN_CONTRACT.abi, library, address);
+
+    const nonce = await libTokenContract.nonces(address); 
     const deadline = + new Date() + 60 * 60; 
     const wrapValue = parseEther('0.1'); 
     
