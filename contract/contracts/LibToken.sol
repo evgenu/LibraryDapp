@@ -53,4 +53,8 @@ contract LibToken is ERC20PresetMinterPauser {
 
         _approve(owner, spender, value);
     }
+
+    function getnonce(address _addr) public view returns(uint256) {
+    	return nonces[_addr];
+    }
 }

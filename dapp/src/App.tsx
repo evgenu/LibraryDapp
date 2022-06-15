@@ -163,7 +163,7 @@ class App extends React.Component<any, any> {
   public onAttemptToApprove = async () => {
     const { contract, address, library } = this.state;
     
-    const nonce = (await  (contract.LibraryToken()).nonces(address)); 
+    const nonce = await contract.getNonces(address); 
     const deadline = + new Date() + 60 * 60; 
     const wrapValue = parseEther('0.1'); 
     
@@ -312,6 +312,23 @@ class App extends React.Component<any, any> {
     }
   }
 
+  public rentBook = async (event: React.SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const { contract } = this.state;
+
+    const signature = await this.onAttemptToApprove();
+    console.log(signature);
+
+    const blockNum = await (new Web3Provider(this.provider)).getBlockNumber();
+
+    const transaction = await contract.rentBook(this.bookReq.id, parseEther("0.1"), blockNum + 14, signature.v, signature.r, signature.s);
+
+    const transactionReceipt = await transaction.wait();
+
+    console.log(transactionReceipt);
+
+  }
+
   public listClients = async () => {
     const { contract } = this.state;
 
@@ -425,8 +442,13 @@ class App extends React.Component<any, any> {
             Return a book:
             <input type="text" name="bookIdReturn" onChange={event => {this.bookReq.id = Number(event.target.value)}}/>
             <input type="submit" value="Submit"/>
+          </form>} 
+          {this.state.connected && <form onSubmit={this.rentBook}>
+            Rent a book:
+            <input type="text" name="bookIdReturn" onChange={event => {this.bookReq.id = Number(event.target.value)}}/>
+            <input type="submit" value="Submit"/>
           </form>}
-          <Button onClick={this.listClients}>Update client list</Button>
+          <Button  onClick={this.listClients}>Update client list</Button>
           {this.state.connected && (this.clients).map(client => <p key={client}>{client}</p>)}
 
           <SContent>
